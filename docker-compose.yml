@@ -1,0 +1,176 @@
+version: '3.8'
+services:
+  # Prowlarr
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # Sonarr
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/sonarr/config:/config
+      - /home/stefan/Downloads/tv:/tv
+      - /home/stefan/Downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # Radarr
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/radarr/config:/config
+      - /home/stefan/Downloads/movies:/movies
+      - /home/stefan/Downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # AdGuard Home
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    volumes:
+      - /home/stefan/docker/adguardhome/workdir:/opt/adguardhome/work
+      - /home/stefan/docker/adguardhome/confdir:/opt/adguardhome/conf
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 80:80
+      - 443:443
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Belgrade
+    networks:
+      - media-stack-network
+
+  # Plex
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=latest
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/plex/config:/config
+      - /home/stefan/Downloads/media:/media
+    ports:
+      - 32400:32400/tcp
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # qBittorrent
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+      - WEBUI_PORT=8080
+    volumes:
+      - /home/stefan/docker/qbittorrent/config:/config
+      - /home/stefan/Downloads:/downloads
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8080:8080
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # Portainer (Docker management)
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/stefan/docker/portainer/data:/data
+    ports:
+      - 9000:9000
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # Homerr (Dashboard)
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /home/stefan/docker/homarr/configs:/app/data/configs
+      - /home/stefan/docker/homarr/icons:/app/public/icons
+      - /home/stefan/docker/homarr/data:/data
+    ports:
+      - '7575:7575'
+    restart: unless-stopped
+    networks:
+      - media-stack-network
+
+  # FreshRSS
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
+    container_name: freshrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/freshrss/config:/config
+    ports:
+      - 82:80
+    restart: unless-stopped
+    networks:
+        - media-stack-network
+
+  # FreshRSS
+  fullrss:
+    image: heussd/fivefilters-full-text-rss:latest
+    container_name: fullrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/fullrss/config:/config
+    ports:
+      - 84:80
+    restart: unless-stopped
+    networks:
+        - media-stack-network
+
+networks:
+  media-stack-network:
+    external: true
+
