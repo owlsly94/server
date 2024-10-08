@@ -26,8 +26,8 @@ services:
       - TZ=Europe/Belgrade
     volumes:
       - /home/stefan/docker/sonarr/config:/config
-      - /home/stefan/Downloads/tv:/tv
-      - /home/stefan/Downloads:/downloads
+      - /multimedia/Downloads/tv:/tv
+      - /multimedia/Downloads:/downloads
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -44,8 +44,8 @@ services:
       - TZ=Europe/Belgrade
     volumes:
       - /home/stefan/docker/radarr/config:/config
-      - /home/stefan/Downloads/movies:/movies
-      - /home/stefan/Downloads:/downloads
+      - /multimedia/Downloads/movies:/movies
+      - /multimedia/Downloads:/downloads
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -74,16 +74,19 @@ services:
 
   # Plex
   plex:
-    image: lscr.io/linuxserver/plex:latest
+    image: plexinc/pms-docker:latest
     container_name: plex
     environment:
+      - PLEX_CLAIM=claim-<code>
+      - PLEX_LOCAL_NETWORK=<server ip>/24
+      - PLEX_VERSION=latest
       - PUID=1000
       - PGID=1000
-      - VERSION=latest
       - TZ=Europe/Belgrade
     volumes:
       - /home/stefan/docker/plex/config:/config
-      - /home/stefan/Downloads/media:/media
+      - /multimedia/Downloads/movies:/movies
+      - /multimedia/Downloads/tv:/tv
     ports:
       - 32400:32400/tcp
     restart: unless-stopped
@@ -101,7 +104,7 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - /home/stefan/docker/qbittorrent/config:/config
-      - /home/stefan/Downloads:/downloads
+      - /multimedia/Downloads:/downloads
     ports:
       - 6881:6881
       - 6881:6881/udp
