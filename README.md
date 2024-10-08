@@ -36,6 +36,9 @@ sudo docker compose up -d
 ```
 5. When you set up everything, make sure that your apps have the right premissions. If not, used the command:
 ```
+docker exec -it <container_name_or_id> /bin/bash
+```
+```
 sudo chown -R abc:users <folder name>
 ```
 
