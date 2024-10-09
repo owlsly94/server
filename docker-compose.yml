@@ -63,8 +63,8 @@ services:
       - 53:53/tcp
       - 53:53/udp
       - 67:67/udp
-      - 80:80
-      - 443:443
+      - 81:80
+      - 445:443
       - 3000:3000
     restart: unless-stopped
     environment:
