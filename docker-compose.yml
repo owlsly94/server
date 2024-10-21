@@ -93,6 +93,22 @@ services:
     networks:
       - media-stack-network
 
+  # Jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:unstable
+    container_name: jellyfin
+    volumes:
+      - /home/stefan/docker/jellyfin/config:/config
+      - /multimedia/Downloads/tv:/data/tvshows
+      - /multimedia/Downloads/movies:/data/movies
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Belgrade
+    networks:
+      - media-stack-network
+
   # qBittorrent
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
