@@ -173,7 +173,7 @@ services:
     networks:
         - media-stack-network
 
-  # FreshRSS
+  # FullRSS
   fullrss:
     image: heussd/fivefilters-full-text-rss:latest
     container_name: fullrss
@@ -188,6 +188,29 @@ services:
     restart: unless-stopped
     networks:
         - media-stack-network
+
+  # WireGuard Easy
+  wg-easy:
+    image: weejewel/wg-easy:latest
+    container_name: wg-easy
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - WG_HOST=<external ip> # NoIP
+      - PASSWORD=<password>
+      - SERVERPORT=51820  
+      - PEERS=5 
+      - INTERNAL_SUBNET=10.13.13.0  
+    volumes:
+      - /home/stefan/docker/wg-easy/config:/etc/wireguard  
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - 51820:51820/udp  
+      - 51821:51821
+    networks:
+      - media-stack-network  
+    restart: unless-stopped
 
 networks:
   media-stack-network:
