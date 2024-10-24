@@ -1,0 +1,233 @@
+version: '3.8'
+services:
+  # Prowlarr
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.10
+
+  # Sonarr
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/sonarr/config:/config
+      - /multimedia/Downloads/tv:/tv
+      - /multimedia/Downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.11
+
+  # Radarr
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/radarr/config:/config
+      - /multimedia/Downloads/movies:/movies
+      - /multimedia/Downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.12
+
+  # AdGuard Home
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    volumes:
+      - /home/stefan/docker/adguardhome/workdir:/opt/adguardhome/work
+      - /home/stefan/docker/adguardhome/confdir:/opt/adguardhome/conf
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 81:81
+      - 445:445
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Belgrade
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.13
+
+  # Plex
+  plex:
+    image: plexinc/pms-docker:latest
+    container_name: plex
+    environment:
+      - PLEX_CLAIM=claim-<code>
+      - PLEX_LOCAL_NETWORK=<server ip>/24
+      - PLEX_VERSION=latest
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/plex/config:/config
+      - /multimedia/Downloads/movies:/movies
+      - /multimedia/Downloads/tv:/tv
+    ports:
+      - 32400:32400/tcp
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.14
+
+  # Jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:unstable
+    container_name: jellyfin
+    volumes:
+      - /home/stefan/docker/jellyfin/config:/config
+      - /multimedia/Downloads/tv:/data/tvshows
+      - /multimedia/Downloads/movies:/data/movies
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Belgrade
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.15
+
+  # qBittorrent
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+      - WEBUI_PORT=8080
+    volumes:
+      - /home/stefan/docker/qbittorrent/config:/config
+      - /multimedia/Downloads:/downloads
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8080:8080
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.16
+
+  # Portainer (Docker management)
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/stefan/docker/portainer/data:/data
+    ports:
+      - 9000:9000
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.17
+
+  # Homerr (Dashboard)
+  homarr:
+    image: ghcr.io/ajnart/homarr:latest
+    container_name: homarr
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /home/stefan/docker/homarr/configs:/app/data/configs
+      - /home/stefan/docker/homarr/icons:/app/public/icons
+      - /home/stefan/docker/homarr/data:/data
+    ports:
+      - '7575:7575'
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.18
+
+  # FreshRSS
+  freshrss:
+    image: lscr.io/linuxserver/freshrss:latest
+    container_name: freshrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/freshrss/config:/config
+    ports:
+      - 82:80
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.19
+
+  # FullRSS
+  fullrss:
+    image: heussd/fivefilters-full-text-rss:latest
+    container_name: fullrss
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Belgrade
+    volumes:
+      - /home/stefan/docker/fullrss/config:/config
+    ports:
+      - 84:80
+    restart: unless-stopped
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.20
+
+  # WireGuard Easy
+  wg-easy:
+    image: weejewel/wg-easy:latest
+    container_name: wg-easy
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - WG_HOST=<external ip> # NoIP
+      - PASSWORD=<password>
+      - SERVERPORT=51820  
+      - PEERS=5 
+      - INTERNAL_SUBNET=10.13.13.0  
+    volumes:
+      - /home/stefan/docker/wg-easy/config:/etc/wireguard  
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - 51820:51820/udp  
+      - 51821:51821
+    networks:
+      media-stack-network:
+        ipv4_address: 172.18.0.21
+    restart: unless-stopped
+
+networks:
+  media-stack-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+
